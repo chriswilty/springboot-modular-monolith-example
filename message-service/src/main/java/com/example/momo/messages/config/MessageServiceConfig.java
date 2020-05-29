@@ -10,11 +10,6 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 @Import(MessageDataConfig.class)
 @PropertySource("classpath:messages.properties")
-/*
- Need ComponentScan to pick up all components within this library module.
- This config is then loaded by the Application module
- */
-@ComponentScan(basePackages = "com.example.momo.messages")
 public class MessageServiceConfig {
 
     @Bean
