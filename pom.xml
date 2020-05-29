@@ -13,6 +13,7 @@
     <modules>
         <module>application</module>
         <module>echo-service</module>
+        <module>counting-service</module>
         <module>message-service</module>
     </modules>
 </project>
