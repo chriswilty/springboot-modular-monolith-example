@@ -1,0 +1,20 @@
+counting:
+  service:
+    serviceNumber: 3
+
+  datasource:
+    driverClassName: org.h2.Driver
+    url: "jdbc:h2:mem:countingdb"
+    username: example
+    password: example
+
+spring:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    # For testing only: create database schema on startup
+    properties:
+      javax:
+        persistence:
+          schema-generation:
+            database:
+              action: create
