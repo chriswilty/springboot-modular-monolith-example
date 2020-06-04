@@ -3,6 +3,9 @@ package com.example.momo.counting.service;
 import com.example.momo.counting.config.CountingServiceProperties;
 import com.example.momo.counting.jpa.entity.Count;
 import com.example.momo.counting.jpa.repository.CountingRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,6 +14,7 @@ import java.util.Optional;
 @Service
 public class CountingService {
 
+    private static final Pageable latestResult = PageRequest.of(0, 1, Sort.Direction.DESC, "updatedAt");
     private final CountingServiceProperties countingServiceProperties;
     private final CountingRepository countingRepository;
 
@@ -30,23 +34,27 @@ public class CountingService {
         return add(-1);
     }
 
-    public long getCount() {
-        final Optional<Count> entityOpt = countingRepository.findById(1L);
-        return entityOpt.isPresent() ? entityOpt.get().getCount() : 0;
+    public long getCurrentValue() {
+        return findLatest().map(Count::getCount).orElse(0L);
     }
 
     public int serviceNumber() {
         return this.countingServiceProperties.getServiceNumber();
     }
 
-    private long add(final int addition) {
-        final Count entity = countingRepository.findById(1L).orElse(Count.builder().count(0L).build());
+    // NOTE: Race-condition alert! In a real application we might use event-sourcing
+    // to record arithmetic events, and replay them to get the current total.
+    private long add(final long addition) {
+        final Count next = Count.builder()
+                .count(getCurrentValue() + addition)
+                .updatedAt(LocalDateTime.now())
+                .build();
 
-        entity.setCount(entity.getCount() + addition);
-        entity.setUpdatedAt(LocalDateTime.now());
-        countingRepository.save(entity);
+        return countingRepository.save(next).getCount();
+    }
 
-        return entity.getCount();
+    private Optional<Count> findLatest() {
+        return countingRepository.findAll(latestResult).get().findFirst();
     }
 
 }

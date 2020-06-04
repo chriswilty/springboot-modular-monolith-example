@@ -52,7 +52,7 @@ public class CountingDataConfig {
     @Bean
     public PlatformTransactionManager countingTransactionManager(
             final @Qualifier("countingEntityManagerFactory")
-            LocalContainerEntityManagerFactoryBean countingEntityManagerFactory
+                    LocalContainerEntityManagerFactoryBean countingEntityManagerFactory
     ) {
         return new JpaTransactionManager(requireNonNull(countingEntityManagerFactory.getObject()));
     }
